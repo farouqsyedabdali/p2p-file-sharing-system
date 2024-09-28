@@ -5,7 +5,7 @@ import threading
 
 if __name__ == "__main__":
 
-    local_ip = "10.196.26.109"
+    local_ip = "172.20.10.6"
     local_port = 5000
 
     node_id = f"node_{local_ip}:{local_port}"
@@ -13,13 +13,13 @@ if __name__ == "__main__":
     network = NetworkManager(local_ip, local_port)
 
 
-    server_thread = threading.Thread(target=network.start_server, args=(node, network))
+    server_thread = threading.Thread(target=network.start_server, args=(node,))
     server_thread.daemon = True
     server_thread.start()
 
-    node.add_peer("10.196.72.11", 5001)
+    node.add_peer("172.20.10.4", 5001)
 
-    chunker = FileChunker("book.txt")
+    chunker = FileChunker("farouqfile.txt")
     chunks = chunker.file_chunker()
 
     for chunk in chunks:

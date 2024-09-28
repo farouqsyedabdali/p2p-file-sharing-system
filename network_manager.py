@@ -1,5 +1,6 @@
 #this file makes sure there is a reliable communication between the nodes
 import socket
+from file_chunker import FileChunker
 
 class NetworkManager:
 
@@ -10,6 +11,7 @@ class NetworkManager:
         """
         self.ip = ip
         self.port = port
+        self.received_chunks = []
 
     def start_server(self, node):
         """
@@ -28,6 +30,8 @@ class NetworkManager:
 
             if chunk:
                 print(f"Received chunk: {chunk}")
+                self.received_chunks.append(chunk)
+                
             
             conn.close()
         
@@ -39,5 +43,19 @@ class NetworkManager:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((peer_ip, peer_port)) # Connects to the neighbor's mailbox
             s.sendall(chunk) # Sends the chunk to the neighbor
+
+    def reassemble_received_chunks(self, output_file):
+        """
+        Reassembles the received chunks.
+        Like putting the pages back together to form the book.
+        """
+        if self.received_chunks:
+            print(f"Reassembling file from {len(self.received_chunks)} chunks...")
+            chunker = FileChunker(None)
+            chunker.reassemble_file(self.received_chunks, output_file)
+            print(f"File reassembled and saved to {output_file}")
+        else:
+            print("No chunks received to reassemble file.")
             
+    
         
