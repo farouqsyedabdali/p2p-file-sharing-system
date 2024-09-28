@@ -1,4 +1,5 @@
 import socket
+from network_manager import NetworkManager
 
 class P2PNode:
 
@@ -19,7 +20,9 @@ class P2PNode:
         self.port = port
         self.peers = []
 
-    def upload_file_chunk(self, file_chunk):
+        self.network_manager = NetworkManager(self.ip, self.port)
+
+    def upload_file_chunk(self, peer_ip, peer_port, chunk):
 
         """
         Uploads the file chunk to the peer.
@@ -27,16 +30,34 @@ class P2PNode:
         Neighbor is saying "Here is the part of the book you wanted"
         """
 
-        pass
+        try:
+            self.network_manager.send_chunk(chunk, peer_ip, peer_port)
+            print(f"Sent a chunk to {peer_ip} on port {peer_port}")
+        
+        except Exception as e:
+            print(f"Error sending chunk to {peer_ip} on port {peer_port}: {e}")
 
-    def download_file_chunk(self, peer):
+    def download_file_chunk(self, conn):
 
         """
         Downloads the file chunk from the peer.
 
         You are saying "Can you share the part of the book with me?"
         """
-        pass
+        
+        try:
+            chunk = conn.recv(512)
+            if chunk:
+                print(f"Received a chunk from {conn.getpeername()}")
+                return chunk
+            else:
+                print(f"No data received from {conn.getpeername()}")
+            
+        except Exception as e:
+            print(f"Error receiving chunk from {conn.getpeername()}: {e}")
+        
+        return None
+            
 
     def add_peer(self, peer_ip, peer_port):
         # Adds neighbor contact information to the list of neighbors.
@@ -45,7 +66,7 @@ class P2PNode:
     def connect_to_peer(self, peer_ip, peer_port):
         """
         Establish a connenction with neighbor to start exchanging book pages (file chunks).
-        
+
         """
 
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
