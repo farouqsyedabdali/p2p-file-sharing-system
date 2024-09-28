@@ -2,6 +2,7 @@ from p2p_node import P2PNode
 from network_manager import NetworkManager
 from file_chunker import FileChunker
 import threading
+import time
 
 if __name__ == "__main__":
 
@@ -25,6 +26,10 @@ if __name__ == "__main__":
     for chunk in chunks:
         for peer_ip, peer_port in node.peers:
             node.upload_file_chunk(peer_ip, peer_port, chunk)
+
+    time.sleep(10)
+
+    network.reassemble_received_chunks("reassembled_file.txt")
 
     threading.Event().wait()
 
